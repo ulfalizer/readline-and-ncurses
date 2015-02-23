@@ -233,6 +233,7 @@ static void init_ncurses(void) {
     CHECK(init_pair, 1, COLOR_WHITE, COLOR_BLUE);
     wbkgd(sep_win, COLOR_PAIR(1));
 
+    // Set up initial window sizes and positions.
     resize();
 }
 

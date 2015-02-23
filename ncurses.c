@@ -189,7 +189,11 @@ static void resize(void) {
 }
 
 static void reset_terminal(void) {
-    endwin();
+    // Avoid calling endwin() if it has already been called. Calling it a
+    // second time messes with the cursor position and causes the prompt to
+    // overwrite the "Shut down cleanly" message.
+    if (!isendwin())
+        endwin();
 }
 
 static void init_ncurses(void) {

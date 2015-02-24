@@ -38,7 +38,7 @@ static WINDOW *cmd_win;
 static char *msg_win_str = NULL;
 
 // Input character for readline.
-static char input;
+static unsigned char input;
 
 // Used to signal "no more input" after feeding a character to readline.
 static bool input_avail = false;

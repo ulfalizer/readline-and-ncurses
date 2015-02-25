@@ -1,9 +1,12 @@
+CC := gcc
+EXECUTABLE := rlncurses
+
 warnings := -Wall -Wextra -Wno-sign-compare -Wno-unused-parameter \
   -Wmissing-declarations -Wredundant-decls -Wstrict-prototypes
 
-ncurses: ncurses.c
-	gcc -std=gnu11 -g -Og $(warnings) ncurses.c -lncursesw -lreadline -o ncurses
+$(EXECUTABLE): rlncurses.c
+	$(CC) -std=gnu11 -g $(warnings) $^ -lncursesw -lreadline -o $@
 
 .PHONY: clean
 clean:
-	rm ncurses
+	rm $(EXECUTABLE)

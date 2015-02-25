@@ -16,20 +16,11 @@
      typeof(b) _b = b;    \
      _a > _b ? _a : _b; })
 
-static void reset_terminal(void) {
-    // Avoid calling endwin() if it has already been called. Calling it a
-    // second time messes with the cursor position and causes the prompt to
-    // overwrite the "Shut down cleanly" message.
-    if (!isendwin())
-        endwin();
-}
-
 // Checks errors for (most) ncurses functions. CHECK(fn, x, y, z) is a checked
 // version of fn(x, y, z).
 #define CHECK(fn, ...)                     \
   do                                       \
       if (fn(__VA_ARGS__) == ERR) {        \
-          reset_terminal();                \
           fputs(#fn"() failed\n", stderr); \
           exit(EXIT_FAILURE);              \
       }                                    \
@@ -196,6 +187,14 @@ static void resize(void) {
         cmd_win_redisplay(true);
         CHECK(doupdate);
     }
+}
+
+static void reset_terminal(void) {
+    // Avoid calling endwin() if it has already been called. Calling it a
+    // second time messes with the cursor position and causes the prompt to
+    // overwrite the "Shut down cleanly" message.
+    if (!isendwin())
+        endwin();
 }
 
 static void init_ncurses(void) {

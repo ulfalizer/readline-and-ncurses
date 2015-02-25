@@ -18,4 +18,4 @@ One of the trickier aspects is that readline does not export the cursor position
 
 ![screenshot](https://raw.githubusercontent.com/ulfalizer/readline-and-ncurses/screenshot/screenshot.png)
 
-The contents of the top window is set to whatever is entered.
+The contents of the top window is set to whatever is entered. To exit, press **Ctrl-D** on an empty line.

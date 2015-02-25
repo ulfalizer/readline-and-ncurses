@@ -1,6 +1,7 @@
 #define _XOPEN_SOURCE 700 // For strnlen().
 #include <locale.h>
 #include <ncurses.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>

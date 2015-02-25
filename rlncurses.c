@@ -33,7 +33,7 @@ static void reset_terminal(void) {
           fputs(#fn"() failed\n", stderr); \
           exit(EXIT_FAILURE);              \
       }                                    \
-  while (0)
+  while (false)
 
 static bool should_exit = false;
 

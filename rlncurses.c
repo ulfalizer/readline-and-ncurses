@@ -237,6 +237,13 @@ static void init_ncurses(void) {
     resize();
 }
 
+static void deinit_ncurses(void) {
+    delwin(msg_win);
+    delwin(sep_win);
+    delwin(cmd_win);
+    endwin();
+}
+
 static void init_readline(void) {
     // Disable completion. TODO: Is there a more robust way to do this?
     if (rl_bind_key('\t', rl_insert) != 0) {
@@ -263,13 +270,6 @@ static void init_readline(void) {
     rl_redisplay_function = readline_redisplay;
 
     rl_callback_handler_install("> ", got_command);
-}
-
-static void deinit_ncurses(void) {
-    delwin(msg_win);
-    delwin(sep_win);
-    delwin(cmd_win);
-    endwin();
 }
 
 static void deinit_readline(void) {

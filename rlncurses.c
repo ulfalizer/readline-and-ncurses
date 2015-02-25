@@ -214,7 +214,7 @@ static void init_ncurses(void) {
     CHECK(use_default_colors);
     CHECK(cbreak);
     CHECK(noecho);
-    nonl();
+    CHECK(nonl);
     CHECK(intrflush, NULL, FALSE);
     // Do not enable keypad() since we want to pass unadultered input to
     // readline.
@@ -229,21 +229,21 @@ static void init_ncurses(void) {
 
     // Allow strings longer than the message window and show only the last part
     // if the string doesn't fit.
-    scrollok(msg_win, TRUE);
+    CHECK(scrollok, msg_win, TRUE);
 
     // Use white-on-blue cells for the separator window.
     CHECK(init_pair, 1, COLOR_WHITE, COLOR_BLUE);
-    wbkgd(sep_win, COLOR_PAIR(1));
+    CHECK(wbkgd, sep_win, COLOR_PAIR(1));
 
     // Set up initial window sizes and positions.
     resize();
 }
 
 static void deinit_ncurses(void) {
-    delwin(msg_win);
-    delwin(sep_win);
-    delwin(cmd_win);
-    endwin();
+    CHECK(delwin, msg_win);
+    CHECK(delwin, sep_win);
+    CHECK(delwin, cmd_win);
+    CHECK(endwin);
 }
 
 static void init_readline(void) {
@@ -280,7 +280,10 @@ static void deinit_readline(void) {
 
 int main(void) {
     // Set locale attributes (including encoding) from the environment.
-    setlocale(LC_ALL, "");
+    if (setlocale(LC_ALL, "") == NULL) {
+        fputs("Failed to set locale attributes from environment\n", stderr);
+        exit(EXIT_FAILURE);
+    }
 
     init_ncurses();
     init_readline();

@@ -165,10 +165,10 @@ static void cmd_win_redisplay(bool for_resize) {
     if (cursor_col >= COLS)
         // Hide the cursor if it lies outside the window. Otherwise it'll
         // appear on the very right.
-        CHECK(curs_set, 0);
+        curs_set(0);
     else {
         CHECK(wmove, cmd_win, 0, cursor_col);
-        CHECK(curs_set, 1);
+        curs_set(2);
     }
     // We batch window updates when resizing.
     if (for_resize)
@@ -210,14 +210,23 @@ static void init_ncurses(void) {
         exit(EXIT_FAILURE);
     }
 
-    CHECK(start_color);
-    CHECK(use_default_colors);
+    if (can_change_color()) {
+        CHECK(start_color);
+        CHECK(use_default_colors);
+    }
     CHECK(cbreak);
     CHECK(noecho);
     CHECK(nonl);
     CHECK(intrflush, NULL, FALSE);
     // Do not enable keypad() since we want to pass unadultered input to
     // readline.
+
+    // Explicitly specify a "very visible" cursor to make sure it's at least
+    // consistent when we turn the cursor on and off (maybe it would make sense
+    // to query it and use the value we get back too). "normal" vs. "very
+    // visible" makes no difference in gnome-terminal or xterm. Let this fail
+    // for terminals that do not support cursor visibility adjustments.
+    curs_set(2);
 
     msg_win = newwin(1, 1, 0, 0);
     sep_win = newwin(1, 1, 0, 0);
@@ -231,9 +240,15 @@ static void init_ncurses(void) {
     // if the string doesn't fit.
     CHECK(scrollok, msg_win, TRUE);
 
-    // Use white-on-blue cells for the separator window.
-    CHECK(init_pair, 1, COLOR_WHITE, COLOR_BLUE);
-    CHECK(wbkgd, sep_win, COLOR_PAIR(1));
+    if (can_change_color()) {
+        // Use white-on-blue cells for the separator window...
+        CHECK(init_pair, 1, COLOR_WHITE, COLOR_BLUE);
+        CHECK(wbkgd, sep_win, COLOR_PAIR(1));
+    }
+    else
+        // ...or the "best highlighting mode of the terminal" if it doesn't
+        // support colors.
+        CHECK(wbkgd, sep_win, A_STANDOUT);
 
     // Set up initial window sizes and positions.
     resize();

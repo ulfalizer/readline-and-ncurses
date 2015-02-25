@@ -149,10 +149,9 @@ static void cmd_win_redisplay(bool for_resize) {
                         strnwidth(rl_line_buffer, rl_point, prompt_width);
 
     CHECK(werase, cmd_win);
-    // These can write strings wider than the terminal currently, so don't
+    // This might write a string wider than the terminal currently, so don't
     // check for errors.
-    mvwaddstr(cmd_win, 0, 0, rl_display_prompt);
-    waddstr(cmd_win, rl_line_buffer);
+    mvwprintw(cmd_win, 0, 0, "%s%s", rl_display_prompt, rl_line_buffer);
     if (cursor_col >= COLS)
         // Hide the cursor if it lies outside the window. Otherwise it'll
         // appear on the very right.

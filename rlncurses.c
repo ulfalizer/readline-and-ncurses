@@ -226,9 +226,18 @@ static void init_ncurses(void) {
     // for terminals that do not support cursor visibility adjustments.
     curs_set(2);
 
-    msg_win = newwin(1, 1, 0, 0);
-    sep_win = newwin(1, 1, 0, 0);
-    cmd_win = newwin(1, 1, 0, 0);
+    if (LINES >= 3) {
+        msg_win = newwin(LINES - 2, COLS, 0, 0);
+        sep_win = newwin(1, COLS, LINES - 2, 0);
+        cmd_win = newwin(1, COLS, LINES - 1, 0);
+    }
+    else {
+        // Degenerate case. Give the windows the minimum workable size to
+        // prevent errors from e.g. wmove().
+        msg_win = newwin(1, COLS, 0, 0);
+        sep_win = newwin(1, COLS, 0, 0);
+        cmd_win = newwin(1, COLS, 0, 0);
+    }
     if (msg_win == NULL || sep_win == NULL || cmd_win == NULL) {
         fputs("Failed to allocate windows\n", stderr);
         exit(EXIT_FAILURE);
@@ -247,9 +256,7 @@ static void init_ncurses(void) {
         // ...or the "best highlighting mode of the terminal" if it doesn't
         // support colors.
         CHECK(wbkgd, sep_win, A_STANDOUT);
-
-    // Set up initial window sizes and positions.
-    resize();
+    CHECK(wrefresh, sep_win);
 }
 
 static void deinit_ncurses(void) {

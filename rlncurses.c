@@ -16,23 +16,26 @@
      typeof(b) _b = b;    \
      _a > _b ? _a : _b; })
 
-static void reset_terminal(void) {
-    // Avoid calling endwin() if it has already been called. Calling it a
-    // second time messes with the cursor position and causes the prompt to
-    // overwrite the "Shut down cleanly" or error message.
-    if (!isendwin())
+// Flag to see if we need to reset the terminal on errors.
+static bool visual_mode = false;
+
+static void fail_exit(const char *msg) {
+    // This is safe here, but it's generally a good idea to check !isendwin()
+    // too before calling endwin(), as calling it twice can mess with the
+    // cursor position.
+    if (visual_mode)
         endwin();
+    fputs(msg, stderr);
+    putc('\n', stderr);
+    exit(EXIT_FAILURE);
 }
 
 // Checks errors for (most) ncurses functions. CHECK(fn, x, y, z) is a checked
 // version of fn(x, y, z).
-#define CHECK(fn, ...)                     \
-  do                                       \
-      if (fn(__VA_ARGS__) == ERR) {        \
-          reset_terminal();                \
-          fputs(#fn"() failed\n", stderr); \
-          exit(EXIT_FAILURE);              \
-      }                                    \
+#define CHECK(fn, ...)               \
+  do                                 \
+      if (fn(__VA_ARGS__) == ERR)    \
+          fail_exit(#fn"() failed"); \
   while (false)
 
 static bool should_exit = false;
@@ -198,16 +201,9 @@ static void resize(void) {
 }
 
 static void init_ncurses(void) {
-    if (initscr() == NULL) {
-        fputs("Failed to initialize ncurses\n", stderr);
-        exit(EXIT_FAILURE);
-    }
-
-    // Try to clean up terminal settings on errors.
-    if (atexit(reset_terminal) != 0) {
-        fputs("atexit() failed\n", stderr);
-        exit(EXIT_FAILURE);
-    }
+    if (initscr() == NULL)
+        fail_exit("Failed to initialize ncurses");
+    visual_mode = true;
 
     if (can_change_color()) {
         CHECK(start_color);
@@ -239,10 +235,8 @@ static void init_ncurses(void) {
         sep_win = newwin(1, COLS, 0, 0);
         cmd_win = newwin(1, COLS, 0, 0);
     }
-    if (msg_win == NULL || sep_win == NULL || cmd_win == NULL) {
-        fputs("Failed to allocate windows\n", stderr);
-        exit(EXIT_FAILURE);
-    }
+    if (msg_win == NULL || sep_win == NULL || cmd_win == NULL)
+        fail_exit("Failed to allocate windows");
 
     // Allow strings longer than the message window and show only the last part
     // if the string doesn't fit.
@@ -265,14 +259,13 @@ static void deinit_ncurses(void) {
     CHECK(delwin, sep_win);
     CHECK(delwin, cmd_win);
     CHECK(endwin);
+    visual_mode = false;
 }
 
 static void init_readline(void) {
     // Disable completion. TODO: Is there a more robust way to do this?
-    if (rl_bind_key('\t', rl_insert) != 0) {
-        fputs("Invalid key passed to rl_bind_key()\n", stderr);
-        exit(EXIT_FAILURE);
-    }
+    if (rl_bind_key('\t', rl_insert) != 0)
+        fail_exit("Invalid key passed to rl_bind_key()");
 
     // Let ncurses do all terminal and signal handling.
     rl_catch_signals = 0;
@@ -301,10 +294,8 @@ static void deinit_readline(void) {
 
 int main(void) {
     // Set locale attributes (including encoding) from the environment.
-    if (setlocale(LC_ALL, "") == NULL) {
-        fputs("Failed to set locale attributes from environment\n", stderr);
-        exit(EXIT_FAILURE);
-    }
+    if (setlocale(LC_ALL, "") == NULL)
+        fail_exit("Failed to set locale attributes from environment");
 
     init_ncurses();
     init_readline();

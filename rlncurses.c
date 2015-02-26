@@ -19,7 +19,7 @@
 static void reset_terminal(void) {
     // Avoid calling endwin() if it has already been called. Calling it a
     // second time messes with the cursor position and causes the prompt to
-    // overwrite the "Shut down cleanly" message.
+    // overwrite the "Shut down cleanly" or error message.
     if (!isendwin())
         endwin();
 }

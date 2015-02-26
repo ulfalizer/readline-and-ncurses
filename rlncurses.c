@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdnoreturn.h>
 #include <string.h>
 #include <readline/history.h>
 #include <readline/readline.h>
@@ -19,7 +20,7 @@
 // Flag to see if we need to reset the terminal on errors.
 static bool visual_mode = false;
 
-static void fail_exit(const char *msg) {
+static noreturn void fail_exit(const char *msg) {
     // This is safe here, but it's generally a good idea to check !isendwin()
     // too before calling endwin(), as calling it twice can mess with the
     // cursor position.

@@ -11,6 +11,7 @@
 #include <readline/readline.h>
 #include <unistd.h>
 #include <wchar.h>
+#include <wctype.h>
 
 #define max(a, b)         \
   ({ typeof(a) _a = a;    \

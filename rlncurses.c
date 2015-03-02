@@ -307,8 +307,15 @@ int main(void) {
         // initial contents of the other windows on startup.
         int c = wgetch(cmd_win);
 
-        if (c == KEY_RESIZE || c == '\f') // '\f' == Ctrl-L.
+        if (c == KEY_RESIZE)
             resize();
+        else if (c == '\f') { // Ctrl-L -- redraw screen.
+            // Makes the next refresh repaint the screen from scratch.
+            CHECK(clearok, curscr, TRUE);
+            // Resize and reposition windows in case that got messed up
+            // somehow.
+            resize();
+        }
         else
             forward_to_readline(c);
     }

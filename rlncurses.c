@@ -193,13 +193,13 @@ static void resize(void) {
 
         CHECK(mvwin, sep_win, LINES - 2, 0);
         CHECK(mvwin, cmd_win, LINES - 1, 0);
-
-        // Batch refreshes and commit them with doupdate().
-        msg_win_redisplay(true);
-        CHECK(wnoutrefresh, sep_win);
-        cmd_win_redisplay(true);
-        CHECK(doupdate);
     }
+
+    // Batch refreshes and commit them with doupdate().
+    msg_win_redisplay(true);
+    CHECK(wnoutrefresh, sep_win);
+    cmd_win_redisplay(true);
+    CHECK(doupdate);
 }
 
 static void init_ncurses(void) {

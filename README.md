@@ -12,7 +12,7 @@ One of the trickier aspects is that readline does not export the cursor position
 
 * Entering multibyte characters during search (e.g., **Ctrl-R**) does not work. This is due to a readline issue: http://lists.gnu.org/archive/html/bug-readline/2015-02/msg00026.html. A workaround would be to buffer bytes until they form a complete multibyte character.
 
-  This problem also goes away if readline is allowed to read directly from stdin (e.g., via a `select` loop). I have a WIP that uses that approach in a branch for [another project](https://github.com/ulfalizer/botniklas). I could push it on request.
+  This problem also goes away if readline is allowed to read directly from stdin too (e.g., via a `select` loop). I have a WIP that uses that approach in a branch for [another project](https://github.com/ulfalizer/botniklas). I could push it on request.
  
 * To keep things simple, the readline (bottom) window does not scroll. It would require some care to get special characters right. ncurses pads might be handy.
 

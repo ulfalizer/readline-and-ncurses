@@ -27,8 +27,7 @@ static noreturn void fail_exit(const char *msg) {
     // cursor position.
     if (visual_mode)
         endwin();
-    fputs(msg, stderr);
-    putc('\n', stderr);
+    fprintf(stderr, "%s\n", msg);
     exit(EXIT_FAILURE);
 }
 

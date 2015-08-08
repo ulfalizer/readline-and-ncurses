@@ -4,7 +4,7 @@
 
 Supports seamless and efficient terminal resizing and multibyte/combining/wide characters. (Wide characters are those that use more than one terminal column.)
 
-One of the trickier aspects is that readline does not export the cursor position. (It's calculated as part of the default `rl_redisplay()` function.) We have to calculate it ourselves to get special characters right.
+One of the trickier aspects is that readline only exports the cursor position as a byte offset (`rl_point`), which won't correspond to the correct terminal cursor column for many strings with special characters. We therefore have to calculate the terminal cursor column ourselves. readline itself does it as part of the default `rl_redisplay()` function.
 
 ## Limitations
 

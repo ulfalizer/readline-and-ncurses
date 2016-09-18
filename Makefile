@@ -1,7 +1,7 @@
-CC := gcc
-EXECUTABLE := rlncurses
+CC ?= gcc
+EXECUTABLE = rlncurses
 
-warnings := -Wall -Wextra -Wno-sign-compare -Wno-unused-parameter \
+warnings = -Wall -Wextra -Wno-sign-compare -Wno-unused-parameter \
   -Wmissing-declarations -Wredundant-decls -Wstrict-prototypes
 
 $(EXECUTABLE): rlncurses.c

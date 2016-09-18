@@ -18,13 +18,14 @@
      typeof(b) _b = b;    \
      _a > _b ? _a : _b; })
 
-// Flag to see if we need to reset the terminal on errors.
+// Flag to see if we need to reset the terminal on errors
 static bool visual_mode = false;
 
-static noreturn void fail_exit(const char *msg) {
+static noreturn void fail_exit(const char *msg)
+{
     // This is safe here, but it's generally a good idea to check !isendwin()
     // too before calling endwin(), as calling it twice can mess with the
-    // cursor position.
+    // cursor position
     if (visual_mode)
         endwin();
     fprintf(stderr, "%s\n", msg);
@@ -43,18 +44,18 @@ static bool should_exit = false;
 
 // Message window.
 static WINDOW *msg_win;
-// Separator line above the command (readline) window.
+// Separator line above the command (readline) window
 static WINDOW *sep_win;
-// Command (readline) window.
+// Command (readline) window
 static WINDOW *cmd_win;
 
-// String displayed in the message window.
+// String displayed in the message window
 static char *msg_win_str = NULL;
 
-// Input character for readline.
+// Input character for readline
 static unsigned char input;
 
-// Used to signal "no more input" after feeding a character to readline.
+// Used to signal "no more input" after feeding a character to readline
 static bool input_avail = false;
 
 // Calculates the cursor position for the readline window in a way that
@@ -71,21 +72,22 @@ static bool input_avail = false;
 // get tabstops right.
 //
 // Makes a guess for malformed strings.
-static size_t strnwidth(const char *s, size_t n, size_t offset) {
+static size_t strnwidth(const char *s, size_t n, size_t offset)
+{
     mbstate_t shift_state;
     wchar_t wc;
     size_t wc_len;
     size_t width = 0;
 
-    // Start in the initial shift state.
+    // Start in the initial shift state
     memset(&shift_state, '\0', sizeof shift_state);
 
     for (size_t i = 0; i < n; i += wc_len) {
-        // Extract the next multibyte character.
+        // Extract the next multibyte character
         wc_len = mbrtowc(&wc, s + i, MB_CUR_MAX, &shift_state);
         switch (wc_len) {
         case 0:
-            // Reached the end of the string.
+            // Reached the end of the string
             goto done;
 
         case (size_t)-1: case (size_t)-2:
@@ -108,43 +110,49 @@ done:
     return width;
 }
 
-// Like strnwidth, but calculates the width of the entire string.
-static size_t strwidth(const char *s, size_t offset) {
+// Like strnwidth, but calculates the width of the entire string
+static size_t strwidth(const char *s, size_t offset)
+{
     return strnwidth(s, SIZE_MAX, offset);
 }
 
 // Not bothering with 'input_avail' and just returning 0 here seems to do the
-// right thing too, but this might be safer across readline versions.
-static int readline_input_avail(void) {
+// right thing too, but this might be safer across readline versions
+static int readline_input_avail(void)
+{
     return input_avail;
 }
 
-static int readline_getc(FILE *dummy) {
+static int readline_getc(FILE *dummy)
+{
     input_avail = false;
 
     return input;
 }
 
-static void forward_to_readline(char c) {
+static void forward_to_readline(char c)
+{
     input = c;
     input_avail = true;
     rl_callback_read_char();
 }
 
-static void msg_win_redisplay(bool for_resize) {
+static void msg_win_redisplay(bool for_resize)
+{
     CHECK(werase, msg_win);
     CHECK(mvwaddstr, msg_win, 0, 0, msg_win_str ? msg_win_str : "");
 
-    // We batch window updates when resizing.
+    // We batch window updates when resizing
     if (for_resize)
         CHECK(wnoutrefresh, msg_win);
     else
         CHECK(wrefresh, msg_win);
 }
 
-static void got_command(char *line) {
+static void got_command(char *line)
+{
     if (line == NULL)
-        // Ctrl-D pressed on empty line.
+        // Ctrl-D pressed on empty line
         should_exit = true;
     else {
         if (*line != '\0')
@@ -156,14 +164,15 @@ static void got_command(char *line) {
     }
 }
 
-static void cmd_win_redisplay(bool for_resize) {
+static void cmd_win_redisplay(bool for_resize)
+{
     size_t prompt_width = strwidth(rl_display_prompt, 0);
     size_t cursor_col = prompt_width +
                         strnwidth(rl_line_buffer, rl_point, prompt_width);
 
     CHECK(werase, cmd_win);
     // This might write a string wider than the terminal currently, so don't
-    // check for errors.
+    // check for errors
     mvwprintw(cmd_win, 0, 0, "%s%s", rl_display_prompt, rl_line_buffer);
     if (cursor_col >= COLS)
         // Hide the cursor if it lies outside the window. Otherwise it'll
@@ -173,18 +182,20 @@ static void cmd_win_redisplay(bool for_resize) {
         CHECK(wmove, cmd_win, 0, cursor_col);
         curs_set(2);
     }
-    // We batch window updates when resizing.
+    // We batch window updates when resizing
     if (for_resize)
         CHECK(wnoutrefresh, cmd_win);
     else
         CHECK(wrefresh, cmd_win);
 }
 
-static void readline_redisplay(void) {
+static void readline_redisplay(void)
+{
     cmd_win_redisplay(false);
 }
 
-static void resize(void) {
+static void resize(void)
+{
     if (LINES >= 3) {
         CHECK(wresize, msg_win, LINES - 2, COLS);
         CHECK(wresize, sep_win, 1, COLS);
@@ -194,14 +205,15 @@ static void resize(void) {
         CHECK(mvwin, cmd_win, LINES - 1, 0);
     }
 
-    // Batch refreshes and commit them with doupdate().
+    // Batch refreshes and commit them with doupdate()
     msg_win_redisplay(true);
     CHECK(wnoutrefresh, sep_win);
     cmd_win_redisplay(true);
     CHECK(doupdate);
 }
 
-static void init_ncurses(void) {
+static void init_ncurses(void)
+{
     if (initscr() == NULL)
         fail_exit("Failed to initialize ncurses");
     visual_mode = true;
@@ -215,7 +227,7 @@ static void init_ncurses(void) {
     CHECK(nonl);
     CHECK(intrflush, NULL, FALSE);
     // Do not enable keypad() since we want to pass unadultered input to
-    // readline.
+    // readline
 
     // Explicitly specify a "very visible" cursor to make sure it's at least
     // consistent when we turn the cursor on and off (maybe it would make sense
@@ -240,7 +252,7 @@ static void init_ncurses(void) {
         fail_exit("Failed to allocate windows");
 
     // Allow strings longer than the message window and show only the last part
-    // if the string doesn't fit.
+    // if the string doesn't fit
     CHECK(scrollok, msg_win, TRUE);
 
     if (can_change_color()) {
@@ -250,12 +262,13 @@ static void init_ncurses(void) {
     }
     else
         // ...or the "best highlighting mode of the terminal" if it doesn't
-        // support colors.
+        // support colors
         CHECK(wbkgd, sep_win, A_STANDOUT);
     CHECK(wrefresh, sep_win);
 }
 
-static void deinit_ncurses(void) {
+static void deinit_ncurses(void)
+{
     CHECK(delwin, msg_win);
     CHECK(delwin, sep_win);
     CHECK(delwin, cmd_win);
@@ -263,12 +276,13 @@ static void deinit_ncurses(void) {
     visual_mode = false;
 }
 
-static void init_readline(void) {
+static void init_readline(void)
+{
     // Disable completion. TODO: Is there a more robust way to do this?
     if (rl_bind_key('\t', rl_insert) != 0)
         fail_exit("Invalid key passed to rl_bind_key()");
 
-    // Let ncurses do all terminal and signal handling.
+    // Let ncurses do all terminal and signal handling
     rl_catch_signals = 0;
     rl_catch_sigwinch = 0;
     rl_deprep_term_function = NULL;
@@ -281,7 +295,7 @@ static void init_readline(void) {
     // rl_callback_read_char() (which is almost always the case).
     rl_change_environment = 0;
 
-    // Handle input by manually feeding characters to readline.
+    // Handle input by manually feeding characters to readline
     rl_getc_function = readline_getc;
     rl_input_available_hook = readline_input_avail;
     rl_redisplay_function = readline_redisplay;
@@ -289,12 +303,14 @@ static void init_readline(void) {
     rl_callback_handler_install("> ", got_command);
 }
 
-static void deinit_readline(void) {
+static void deinit_readline(void)
+{
     rl_callback_handler_remove();
 }
 
-int main(void) {
-    // Set locale attributes (including encoding) from the environment.
+int main(void)
+{
+    // Set locale attributes (including encoding) from the environment
     if (setlocale(LC_ALL, "") == NULL)
         fail_exit("Failed to set locale attributes from environment");
 
@@ -303,16 +319,16 @@ int main(void) {
 
     while (!should_exit) {
         // Using getch() here instead would refresh stdscr, overwriting the
-        // initial contents of the other windows on startup.
+        // initial contents of the other windows on startup
         int c = wgetch(cmd_win);
 
         if (c == KEY_RESIZE)
             resize();
         else if (c == '\f') { // Ctrl-L -- redraw screen.
-            // Makes the next refresh repaint the screen from scratch.
+            // Makes the next refresh repaint the screen from scratch
             CHECK(clearok, curscr, TRUE);
             // Resize and reposition windows in case that got messed up
-            // somehow.
+            // somehow
             resize();
         }
         else

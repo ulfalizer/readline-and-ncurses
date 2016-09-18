@@ -1,12 +1,12 @@
 CC ?= gcc
-EXECUTABLE = rlncurses
+CFLAGS ?= -g -Og
+override CFLAGS += -std=gnu11 -Wall -Wextra -Wno-sign-compare \
+  -Wno-unused-parameter -Wmissing-declarations -Wredundant-decls \
+  -Wstrict-prototypes
+override LDLIBS += -lncursesw -lreadline
 
-warnings = -Wall -Wextra -Wno-sign-compare -Wno-unused-parameter \
-  -Wmissing-declarations -Wredundant-decls -Wstrict-prototypes
-
-$(EXECUTABLE): rlncurses.c
-	$(CC) -std=gnu11 -g $(warnings) $^ -lncursesw -lreadline -o $@
+rlncurses: rlncurses.c
 
 .PHONY: clean
 clean:
-	rm $(EXECUTABLE)
+	$(RM) rlncurses

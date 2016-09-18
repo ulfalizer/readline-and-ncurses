@@ -1,4 +1,4 @@
-#define _XOPEN_SOURCE 700 // For strnlen().
+#define _XOPEN_SOURCE 700 // For strnlen()
 #include <locale.h>
 #include <ncurses.h>
 #include <stdbool.h>
@@ -42,7 +42,7 @@ static noreturn void fail_exit(const char *msg)
 
 static bool should_exit = false;
 
-// Message window.
+// Message window
 static WINDOW *msg_win;
 // Separator line above the command (readline) window
 static WINDOW *sep_win;
@@ -102,7 +102,7 @@ static size_t strnwidth(const char *s, size_t n, size_t offset)
             width = ((width + offset + 8) & ~7) - offset;
         else
             // TODO: readline also outputs ~<letter> and the like for some
-            // non-printable characters.
+            // non-printable characters
             width += iswcntrl(wc) ? 2 : max(0, wcwidth(wc));
     }
 

@@ -218,7 +218,7 @@ static void init_ncurses(void)
         fail_exit("Failed to initialize ncurses");
     visual_mode = true;
 
-    if (can_change_color()) {
+    if (has_colors()) {
         CHECK(start_color);
         CHECK(use_default_colors);
     }
@@ -255,7 +255,7 @@ static void init_ncurses(void)
     // if the string doesn't fit
     CHECK(scrollok, msg_win, TRUE);
 
-    if (can_change_color()) {
+    if (has_colors()) {
         // Use white-on-blue cells for the separator window...
         CHECK(init_pair, 1, COLOR_WHITE, COLOR_BLUE);
         CHECK(wbkgd, sep_win, COLOR_PAIR(1));

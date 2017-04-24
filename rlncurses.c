@@ -18,14 +18,14 @@
      typeof(b) _b = b;    \
      _a > _b ? _a : _b; })
 
-// Flag to see if we need to reset the terminal on errors
+// Keeps track of the terminal mode so we can reset the terminal if needed on
+// errors
 static bool visual_mode = false;
 
 static noreturn void fail_exit(const char *msg)
 {
-    // This is safe here, but it's generally a good idea to check !isendwin()
-    // too before calling endwin(), as calling it twice can mess with the
-    // cursor position
+    // Make sure endwin() is only called in visual mode. As a note, calling it
+    // twice does not seem to be supported and messed with the cursor position.
     if (visual_mode)
         endwin();
     fprintf(stderr, "%s\n", msg);
@@ -58,10 +58,10 @@ static unsigned char input;
 // Used to signal "no more input" after feeding a character to readline
 static bool input_avail = false;
 
-// Calculates the cursor position for the readline window in a way that
-// supports multibyte, multi-column and combining characters. readline itself
-// calculates this as part of its default redisplay function and does not
-// export the cursor position.
+// Calculates the cursor column for the readline window in a way that supports
+// multibyte, multi-column and combining characters. readline itself calculates
+// this as part of its default redisplay function and does not export the
+// cursor column.
 //
 // Returns the total width (in columns) of the characters in the 'n'-byte
 // prefix of the null-terminated multibyte string 's'. If 'n' is larger than
@@ -126,7 +126,6 @@ static int readline_input_avail(void)
 static int readline_getc(FILE *dummy)
 {
     input_avail = false;
-
     return input;
 }
 
@@ -151,7 +150,7 @@ static void msg_win_redisplay(bool for_resize)
 
 static void got_command(char *line)
 {
-    if (line == NULL)
+    if (!line)
         // Ctrl-D pressed on empty line
         should_exit = true;
     else {
@@ -214,7 +213,7 @@ static void resize(void)
 
 static void init_ncurses(void)
 {
-    if (initscr() == NULL)
+    if (!initscr())
         fail_exit("Failed to initialize ncurses");
     visual_mode = true;
 
@@ -248,7 +247,7 @@ static void init_ncurses(void)
         sep_win = newwin(1, COLS, 0, 0);
         cmd_win = newwin(1, COLS, 0, 0);
     }
-    if (msg_win == NULL || sep_win == NULL || cmd_win == NULL)
+    if (!msg_win || !sep_win || !cmd_win)
         fail_exit("Failed to allocate windows");
 
     // Allow strings longer than the message window and show only the last part
@@ -311,7 +310,7 @@ static void deinit_readline(void)
 int main(void)
 {
     // Set locale attributes (including encoding) from the environment
-    if (setlocale(LC_ALL, "") == NULL)
+    if (!setlocale(LC_ALL, ""))
         fail_exit("Failed to set locale attributes from environment");
 
     init_ncurses();

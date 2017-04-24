@@ -14,7 +14,7 @@ One of the trickier aspects is that readline only exports the cursor position as
 
   This problem also goes away if readline is allowed to read directly from stdin (e.g., via a `select` loop). I have a WIP that uses that approach in a branch for [another project](https://github.com/ulfalizer/botniklas). I could push it on request.
  
-* To keep things simple, the readline (bottom) window does not scroll. It would require some care to get special characters right. ncurses pads might be handy.
+* To keep things simple, the readline (bottom) window does not scroll. It would require some care to get special characters right.
 
 ## Screenshot
 

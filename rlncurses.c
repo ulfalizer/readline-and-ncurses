@@ -91,9 +91,10 @@ static size_t strnwidth(const char *s, size_t n, size_t offset)
             goto done;
 
         case (size_t)-1: case (size_t)-2:
-            // Failed to extract character. Guess that the remaining characters
-            // are one byte/column wide each.
-            width += strnlen(s, n - i);
+            // Failed to extract character. Guess that each character is
+            // one/byte column wide each starting from the invalid character to
+            // keep things simple.
+            width += strnlen(s + i, n - i);
             goto done;
         }
 

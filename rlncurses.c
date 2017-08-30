@@ -154,7 +154,7 @@ static void got_command(char *line)
         // Ctrl-D pressed on empty line
         should_exit = true;
     else {
-        if (*line != '\0')
+        if (*line)
             add_history(line);
 
         free(msg_win_str);
@@ -278,7 +278,7 @@ static void deinit_ncurses(void)
 static void init_readline(void)
 {
     // Disable completion. TODO: Is there a more robust way to do this?
-    if (rl_bind_key('\t', rl_insert) != 0)
+    if (rl_bind_key('\t', rl_insert))
         fail_exit("Invalid key passed to rl_bind_key()");
 
     // Let ncurses do all terminal and signal handling

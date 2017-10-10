@@ -34,10 +34,10 @@ static noreturn void fail_exit(const char *msg)
 
 // Checks errors for (most) ncurses functions. CHECK(fn, x, y, z) is a checked
 // version of fn(x, y, z).
-#define CHECK(fn, ...)               \
-  do                                 \
-      if ((fn)(__VA_ARGS__) == ERR)  \
-          fail_exit(#fn"() failed"); \
+#define CHECK(fn, ...)                             \
+  do                                               \
+      if ((fn)(__VA_ARGS__) == ERR)                \
+          fail_exit(#fn"("#__VA_ARGS__") failed"); \
   while (false)
 
 static bool should_exit = false;

@@ -69,7 +69,7 @@ static bool input_avail = false;
 // prints some special characters.
 //
 // 'offset' is the current horizontal offset within the line. This is used to
-// get tabstops right.
+// get tab stops right.
 //
 // Makes a guess for malformed strings.
 static size_t strnwidth(const char *s, size_t n, size_t offset)
@@ -225,7 +225,7 @@ static void init_ncurses(void)
     CHECK(noecho);
     CHECK(nonl);
     CHECK(intrflush, NULL, FALSE);
-    // Do not enable keypad() since we want to pass unadultered input to
+    // Do not enable keypad() since we want to pass unadulterated input to
     // readline
 
     // Explicitly specify a "very visible" cursor to make sure it's at least

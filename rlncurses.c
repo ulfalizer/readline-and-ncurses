@@ -1,8 +1,8 @@
 // For strnlen() and wcwidth()
 #define _XOPEN_SOURCE 700
 
+#include <curses.h>
 #include <locale.h>
-#include <ncurses.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>

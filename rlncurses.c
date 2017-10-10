@@ -322,17 +322,22 @@ int main(void)
         // initial contents of the other windows on startup
         int c = wgetch(cmd_win);
 
-        if (c == KEY_RESIZE)
+        switch (c) {
+        case KEY_RESIZE:
             resize();
-        else if (c == '\f') { // Ctrl-L -- redraw screen.
+            break;
+
+        // Ctrl-L -- redraw screen
+        case '\f':
             // Makes the next refresh repaint the screen from scratch
             CHECK(clearok, curscr, TRUE);
-            // Resize and reposition windows in case that got messed up
-            // somehow
+            // Resize and reposition windows in case that got messed up somehow
             resize();
-        }
-        else
+            break;
+
+        default:
             forward_to_readline(c);
+        }
     } while (!should_exit);
 
     deinit_ncurses();

@@ -36,7 +36,7 @@ static noreturn void fail_exit(const char *msg)
 // version of fn(x, y, z).
 #define CHECK(fn, ...)               \
   do                                 \
-      if (fn(__VA_ARGS__) == ERR)    \
+      if ((fn)(__VA_ARGS__) == ERR)  \
           fail_exit(#fn"() failed"); \
   while (false)
 

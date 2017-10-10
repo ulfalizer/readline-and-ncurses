@@ -1,4 +1,6 @@
-#define _XOPEN_SOURCE 700 // For strnlen()
+// For strnlen() and wcwidth()
+#define _XOPEN_SOURCE 700
+
 #include <locale.h>
 #include <ncurses.h>
 #include <stdbool.h>
@@ -9,7 +11,6 @@
 #include <string.h>
 #include <readline/history.h>
 #include <readline/readline.h>
-#include <unistd.h>
 #include <wchar.h>
 #include <wctype.h>
 

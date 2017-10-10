@@ -316,7 +316,7 @@ int main(void)
     init_ncurses();
     init_readline();
 
-    while (!should_exit) {
+    do {
         // Using getch() here instead would refresh stdscr, overwriting the
         // initial contents of the other windows on startup
         int c = wgetch(cmd_win);
@@ -332,7 +332,7 @@ int main(void)
         }
         else
             forward_to_readline(c);
-    }
+    } while (!should_exit);
 
     deinit_ncurses();
     deinit_readline();

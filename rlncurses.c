@@ -3,14 +3,14 @@
 
 #include <curses.h>
 #include <locale.h>
+#include <readline/history.h>
+#include <readline/readline.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdnoreturn.h>
 #include <string.h>
-#include <readline/history.h>
-#include <readline/readline.h>
 #include <wchar.h>
 #include <wctype.h>
 

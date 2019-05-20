@@ -21,3 +21,8 @@ One of the trickier aspects is that readline only exports the cursor position as
 ![screenshot](https://raw.githubusercontent.com/ulfalizer/readline-and-ncurses/screenshot/screenshot.png)
 
 The contents of the top window is set to whatever is entered. To exit, press **Ctrl-D** on an empty line.
+
+## License
+
+See [LICENSE.txt](LICENSE.txt). SPDX license identifiers are used in the source
+code.

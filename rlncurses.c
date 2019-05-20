@@ -1,3 +1,6 @@
+// Copyright (c) 2015-2019, Ulf Magnusson
+// SPDX-License-Identifier: ISC
+
 // For strnlen() and wcwidth()
 #define _XOPEN_SOURCE 700
 

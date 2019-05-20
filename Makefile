@@ -1,3 +1,6 @@
+# Copyright (c) 2015-2019, Ulf Magnusson
+# SPDX-License-Identifier: ISC
+
 ifeq ($(origin CC), default)
   CC = gcc
 endif

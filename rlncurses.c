@@ -62,6 +62,13 @@ static unsigned char input;
 // Used to signal "no more input" after feeding a character to readline
 static bool input_avail = false;
 
+// stream passed to RL to get its output
+static FILE * output_stream;
+// the mem buffer, where the stream will be written
+static char * output_buffer;
+// the size of the buffer
+static size_t output_buffer_size;
+
 // Calculates the cursor column for the readline window in a way that supports
 // multibyte, multi-column and combining characters. readline itself calculates
 // this as part of its default redisplay function and does not export the
@@ -281,9 +288,18 @@ static void deinit_ncurses(void)
 
 static void init_readline(void)
 {
+    char buf[256];
     // Disable completion. TODO: Is there a more robust way to do this?
-    if (rl_bind_key('\t', rl_insert))
-        fail_exit("Invalid key passed to rl_bind_key()");
+    //if (rl_bind_key('\t', rl_insert))
+    //    fail_exit("Invalid key passed to rl_bind_key()");
+
+    // disable completion
+	//strcpy(buf,"set disable-completion on");
+    //rl_parse_and_bind(buf);
+
+    // disable colored results in completion
+    strcpy(buf,"set colored-stats off");
+    rl_parse_and_bind(buf);
 
     // Let ncurses do all terminal and signal handling
     rl_catch_signals = 0;
@@ -297,6 +313,12 @@ static void init_readline(void)
     // COLUMNS are not updated if the terminal is resized between two calls to
     // rl_callback_read_char() (which is almost always the case).
     rl_change_environment = 0;
+
+    // redirect RL output to our memory buffered stream
+    output_stream = open_memstream(&output_buffer, &output_buffer_size);
+    if (!output_stream)
+        fail_exit("Cannot open memstream for RL output buffer\n");
+    rl_outstream = output_stream;
 
     // Handle input by manually feeding characters to readline
     rl_getc_function = readline_getc;
@@ -321,6 +343,18 @@ int main(void)
     init_readline();
 
     do {
+        // check if there is something from RL to be printed
+        // flush the RL output stream, so it's saved in the buffer and the size is updated
+        fflush(output_stream);
+        if (output_buffer_size) {
+            output_buffer[output_buffer_size] = 0;
+            wprintw(msg_win, output_buffer);
+            wnoutrefresh(msg_win);
+            wrefresh(cmd_win); // keep the pointer in cmd_win
+            // this will reset the buffer, so we wont get duplicate text (see open_memstream man page)
+            fseek(output_stream, 0, SEEK_SET);
+        }
+
         // Using getch() here instead would refresh stdscr, overwriting the
         // initial contents of the other windows on startup
         int c = wgetch(cmd_win);
